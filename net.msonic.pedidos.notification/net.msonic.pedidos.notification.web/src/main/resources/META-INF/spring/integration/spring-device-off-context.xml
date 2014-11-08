@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:int-http="http://www.springframework.org/schema/integration/http"
+	xmlns:int-mqtt="http://www.springframework.org/schema/integration/mqtt"
+	xmlns:file="http://www.springframework.org/schema/integration/file"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:int-jdbc="http://www.springframework.org/schema/integration/jdbc"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-4.0.xsd
+		http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http-4.0.xsd
+		http://www.springframework.org/schema/integration/mqtt http://www.springframework.org/schema/integration/mqtt/spring-integration-mqtt-4.0.xsd
+		http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+		http://www.springframework.org/schema/integration/jdbc http://www.springframework.org/schema/integration/jdbc/spring-integration-jdbc-4.0.xsd">
+	
+ 
+  
+	<int:channel id="requestChannel1" />
+	<int:channel id="responseChannel1" />
+
+	
+	<int-mqtt:message-driven-channel-adapter
+		client-id="MM1" 
+		url="${mqtt.url}" 
+		topics="DEVICES/+/OFF"
+		client-factory="clientFactory" 
+		channel="requestChannel1" 
+		auto-startup="true" />
+
+	
+	<int-jdbc:outbound-channel-adapter query="UPDATE PHONE SET status=0 WHERE imei=SUBSTRING_INDEX(SUBSTRING_INDEX(:headers[mqtt_topic],'/',2),'/',-1)" data-source="dataSource"  auto-startup="true" channel="requestChannel1"/>
+    
+    <!-- 
+	<file:outbound-channel-adapter channel="requestChannel1"
+		id="writeToFile" auto-startup="true" directory="./response"
+		delete-source-files="false" />
+	 -->
+	
+	<bean id="clientFactory" class="org.springframework.integration.mqtt.core.DefaultMqttPahoClientFactory" />
+
+
+
+
+</beans>

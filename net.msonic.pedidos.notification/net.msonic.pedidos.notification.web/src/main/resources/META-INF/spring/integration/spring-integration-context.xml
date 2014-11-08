@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:int-http="http://www.springframework.org/schema/integration/http"
+	xmlns:int-mqtt="http://www.springframework.org/schema/integration/mqtt"
+	xmlns:file="http://www.springframework.org/schema/integration/file"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:int-jdbc="http://www.springframework.org/schema/integration/jdbc"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-4.0.xsd
+		http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http-4.0.xsd
+		http://www.springframework.org/schema/integration/mqtt http://www.springframework.org/schema/integration/mqtt/spring-integration-mqtt-4.0.xsd
+		http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+		http://www.springframework.org/schema/integration/jdbc http://www.springframework.org/schema/integration/jdbc/spring-integration-jdbc-4.0.xsd">
+	
+	
+
+	<!-- log4j setting -->
+
+
+    <bean id="log4jInitialization"
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetClass" value="org.springframework.util.Log4jConfigurer" />
+        <property name="targetMethod" value="initLogging" />
+        <property name="arguments">
+            <list>
+                <value>classpath:log4j.xml</value>
+            </list>
+        </property>
+    </bean>
+    
+    <context:property-placeholder location="classpath:database.properties" order="1"  ignore-unresolvable="true"/>
+	<context:property-placeholder location="classpath:mqtt.properties" order="2"  ignore-unresolvable="true"/>
+ 	<!-- 
+ 	 <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+	    <property name="driverClassName" value="${database.driverClassName}" />
+	    <property name="url" value="${database.url}" />
+	    <property name="username" value="${database.username}"  />
+	    <property name="password" value="${database.password}" />
+	  </bean>
+ -->
+  
+  <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+			<property name="jndiName">
+				<value>java:jboss/datasources/SIPedidos</value>
+				
+			</property>
+</bean>
+	
+    <import resource="classpath:META-INF/spring/integration/spring-device-on-context.xml"/>
+    <import resource="classpath:META-INF/spring/integration/spring-device-off-context.xml"/>
+
+</beans>
